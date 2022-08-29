@@ -24,8 +24,10 @@ public class Mino : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.RightArrow))
             TryToRight();
         else if (Input.GetKeyDown(KeyCode.DownArrow) || Time.time - previousTime >= fallTime)
-            TryToDown();
+            TryToSoftDrop();
         else if (Input.GetKeyDown(KeyCode.UpArrow))
+            HardDrop();
+        else if (Input.GetKeyDown(KeyCode.Space))
             TryRotate();
     }
     private void TryToRight()
@@ -38,33 +40,34 @@ public class Mino : MonoBehaviour
         transform.position += new Vector3(-1, 0, 0);
         if (!IsValidMovement()) transform.position -= new Vector3(-1, 0, 0);
     }
-    private void TryToDown()
+    private void TryToSoftDrop()
     {
         transform.position += new Vector3(0, -1, 0);
         if (!IsValidMovement())
         {
             transform.position -= new Vector3(0, -1, 0);
-            AddToGrid();
-            SetToGrid();
-            LineClear();
-            this.enabled = false;
-            FindObjectOfType<SpawnMino>().NewMino();
+            SetMino();
         }
         previousTime = Time.time;
+    }
+    private void HardDrop()
+    {
+        while (IsValidMovement())
+            transform.position += new Vector3(0, -1, 0);
+
+        transform.position -= new Vector3(0, -1, 0);
+        SetMino();
+    }
+    private void SetMino()
+    {
+        SetToGrid();
+        LineClear();
+        this.enabled = false;
+        FindObjectOfType<SpawnMino>().NewMino();
     }
     private void TryRotate()
     {
         transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
-    }
-    void AddToGrid()
-    {
-        foreach (Transform children in transform)
-        {
-            int roundX = Mathf.RoundToInt(children.transform.position.x);
-            int roundY = Mathf.RoundToInt(children.transform.position.y);
-
-            grid[roundX, roundY] = children;
-        }
     }
     public void LineClear()
     {
@@ -126,7 +129,7 @@ public class Mino : MonoBehaviour
         {
             int roundX = Mathf.RoundToInt(children.transform.position.x);
             int roundY = Mathf.RoundToInt(children.transform.position.y);
-            if (roundX < 0 || roundX >= width || roundY < 0 || roundY >= height)
+            if (roundX < 0 || roundX >= width || roundY < 0)
                 return false;
             if (grid[roundX, roundY] != null)
                 return false;

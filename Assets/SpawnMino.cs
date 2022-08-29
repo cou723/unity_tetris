@@ -47,13 +47,9 @@ public class SpawnMino : MonoBehaviour
     {
         Vector3 spawnPos = transform.position;
         if (mino_index <= 4)
-        {
-            spawnPos += new Vector3(0.5f, 0, 0);
-        }
+            spawnPos += new Vector3(-0.5f, 0, 0);
         else
-        {
             spawnPos += new Vector3(0, 0.5f, 0);
-        }
         return spawnPos;
     }
 }
